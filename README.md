@@ -6,7 +6,9 @@
 
 ### 完整系统启动
 ```bash
-sudo ./start.sh
+./robot-studio start
+# 如需同时开启热点：
+./robot-studio start --hotspot
 ```
 
 ### 仅路径规划
@@ -26,6 +28,14 @@ sudo ./start.sh
 - **WiFi连接**: `RobotStudio` (无密码)
 - **Web界面**: http://robot 或 http://192.168.4.1
 - **API服务**: http://192.168.4.1:8000
+
+## ⏻ 安全关机
+
+- **Web界面**：点击页面底部“关机”，按提示输入 `POWER_OFF` 才会执行关机。
+- **API**（支持 dry-run / plan-only）：
+  - 仅检查不执行：`{"command":"shutdown_system","parameters":{"plan_only":true}}`
+  - 仅停止服务不关机：`{"command":"shutdown_system","parameters":{"confirm":"POWER_OFF","dry_run":true,"network_cleanup":false}}`
+  - 真正关机：`{"command":"shutdown_system","parameters":{"confirm":"POWER_OFF"}}`
 
 ## 📁 系统结构
 
