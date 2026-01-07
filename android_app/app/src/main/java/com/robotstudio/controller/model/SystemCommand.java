@@ -30,7 +30,7 @@ public class SystemCommand {
     
     // 预定义的系统命令
     public static SystemCommand shutdown() {
-        return new SystemCommand("shutdown_system");
+        return new SystemCommand("shutdown_system").addParameter("confirm", "关机");
     }
     
     public static SystemCommand startPathPlanning() {
