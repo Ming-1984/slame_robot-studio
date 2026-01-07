@@ -42,6 +42,7 @@ public sealed class MainForm : Form
     private readonly System.Windows.Forms.Timer resizeDebounceTimer = new() { Interval = 120 };
     private readonly System.Windows.Forms.Timer focusAssistTimer = new() { Interval = 20 };
     private bool lastLeftMouseDown;
+    private bool wasMouseInWorkspaceMappingArea;
     private CancellationTokenSource? auroraStartCts;
 
     public MainForm()
@@ -397,6 +398,7 @@ public sealed class MainForm : Form
             if (tabs.SelectedTab != workspaceTab || !auroraRemoteHost.IsRunning)
             {
                 lastLeftMouseDown = false;
+                wasMouseInWorkspaceMappingArea = false;
                 return;
             }
 
@@ -405,18 +407,23 @@ public sealed class MainForm : Form
                 return;
             }
 
-            var down = (Win32.GetAsyncKeyState(Win32.VK_LBUTTON) & 0x8000) != 0;
-            if (down && !lastLeftMouseDown)
+            var p = Control.MousePosition;
+            var rect = workspaceAuroraHostPanel.RectangleToScreen(workspaceAuroraHostPanel.ClientRectangle);
+            var inArea = rect.Contains(p);
+
+            if (inArea && !wasMouseInWorkspaceMappingArea)
             {
-                var p = Control.MousePosition;
-                var rect = workspaceAuroraHostPanel.RectangleToScreen(workspaceAuroraHostPanel.ClientRectangle);
-                if (rect.Contains(p))
-                {
-                    auroraRemoteHost.Activate();
-                }
+                auroraRemoteHost.Activate();
+            }
+
+            var down = (Win32.GetAsyncKeyState(Win32.VK_LBUTTON) & 0x8000) != 0;
+            if (inArea && down && !lastLeftMouseDown)
+            {
+                auroraRemoteHost.Activate();
             }
 
             lastLeftMouseDown = down;
+            wasMouseInWorkspaceMappingArea = inArea;
         }
         catch
         {
