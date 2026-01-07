@@ -40,6 +40,8 @@ public sealed class MainForm : Form
 
     private readonly System.Windows.Forms.Timer probeTimer = new() { Interval = 5000 };
     private readonly System.Windows.Forms.Timer resizeDebounceTimer = new() { Interval = 120 };
+    private readonly System.Windows.Forms.Timer focusAssistTimer = new() { Interval = 20 };
+    private bool lastLeftMouseDown;
     private CancellationTokenSource? auroraStartCts;
 
     public MainForm()
@@ -72,6 +74,9 @@ public sealed class MainForm : Form
 
         probeTimer.Tick += async (_, _) => await ProbeOnceAsync();
         probeTimer.Start();
+
+        focusAssistTimer.Tick += (_, _) => FocusAssistTick();
+        focusAssistTimer.Start();
 
         resizeDebounceTimer.Tick += (_, _) =>
         {
@@ -379,9 +384,44 @@ public sealed class MainForm : Form
         Application.RemoveMessageFilter(mappingFocusMessageFilter);
         auroraStartCts?.Cancel();
         probeTimer.Stop();
+        focusAssistTimer.Stop();
         resizeDebounceTimer.Stop();
 
         auroraRemoteHost.Stop();
+    }
+
+    private void FocusAssistTick()
+    {
+        try
+        {
+            if (tabs.SelectedTab != workspaceTab || !auroraRemoteHost.IsRunning)
+            {
+                lastLeftMouseDown = false;
+                return;
+            }
+
+            if (!workspaceAuroraHostPanel.IsHandleCreated)
+            {
+                return;
+            }
+
+            var down = (Win32.GetAsyncKeyState(Win32.VK_LBUTTON) & 0x8000) != 0;
+            if (down && !lastLeftMouseDown)
+            {
+                var p = Control.MousePosition;
+                var rect = workspaceAuroraHostPanel.RectangleToScreen(workspaceAuroraHostPanel.ClientRectangle);
+                if (rect.Contains(p))
+                {
+                    auroraRemoteHost.Activate();
+                }
+            }
+
+            lastLeftMouseDown = down;
+        }
+        catch
+        {
+            // Ignore
+        }
     }
 
     private void TryActivateMappingForClick()

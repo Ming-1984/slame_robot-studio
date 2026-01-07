@@ -92,6 +92,11 @@ internal static class Win32
     [DllImport("user32.dll", SetLastError = true)]
     internal static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
 
+    internal const int VK_LBUTTON = 0x01;
+
+    [DllImport("user32.dll")]
+    internal static extern short GetAsyncKeyState(int vKey);
+
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     internal struct STARTUPINFO
     {
