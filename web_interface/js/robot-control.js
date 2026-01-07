@@ -91,15 +91,15 @@ class RobotController {
         const shutdownBtn = document.getElementById('shutdownBtn');
         if (shutdownBtn) {
             shutdownBtn.addEventListener('click', () => {
-                const token = prompt('输入 POWER_OFF 确认关机（将断开连接）；其它输入将取消。');
-                if (token !== 'POWER_OFF') {
+                const token = prompt('输入“关机”确认关机（将断开连接）；其它输入将取消。');
+                if (token !== '关机') {
                     this.addLog('已取消关机', 'info');
                     return;
                 }
 
                 shutdownBtn.disabled = true;
                 shutdownBtn.classList.add('disabled');
-                this.executeSystemCommand('shutdown_system', { confirm: 'POWER_OFF' });
+                this.executeSystemCommand('shutdown_system', { confirm: '关机' });
             });
         }
     }

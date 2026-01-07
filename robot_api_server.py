@@ -695,11 +695,11 @@ async def execute_system_command(command: SystemCommand):
                     # 默认：真实关机做网络清理；dry-run 不动网络避免断连（仍会停止服务）
                     network_cleanup = bool(command.parameters.get("network_cleanup", (not dry_run)))
 
-                if (not plan_only) and (confirm_token != "POWER_OFF"):
+                if (not plan_only) and (confirm_token != "关机"):
                     return {
                         "status": "error",
                         "message": "关机操作需要确认令牌",
-                        "error": "请在 parameters 中传入 confirm=POWER_OFF（可选 dry_run=true 仅停止服务不关机）"
+                        "error": "请在 parameters 中传入 confirm=关机（可选 dry_run=true 仅停止服务不关机）"
                     }
 
                 args = ["bash", script_path, "--delay", str(max(0, delay_seconds))]

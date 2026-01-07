@@ -31,11 +31,11 @@
 
 ## ⏻ 安全关机
 
-- **Web界面**：点击页面底部“关机”，按提示输入 `POWER_OFF` 才会执行关机。
+- **Web界面**：点击页面底部“关机”，按提示输入 `关机` 才会执行关机。
 - **API**（支持 dry-run / plan-only）：
   - 仅检查不执行：`{"command":"shutdown_system","parameters":{"plan_only":true}}`
-  - 仅停止服务不关机：`{"command":"shutdown_system","parameters":{"confirm":"POWER_OFF","dry_run":true,"network_cleanup":false}}`
-  - 真正关机：`{"command":"shutdown_system","parameters":{"confirm":"POWER_OFF"}}`
+  - 仅停止服务不关机：`{"command":"shutdown_system","parameters":{"confirm":"关机","dry_run":true,"network_cleanup":false}}`
+  - 真正关机：`{"command":"shutdown_system","parameters":{"confirm":"关机"}}`
 
 ## 📁 系统结构
 
