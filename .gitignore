@@ -1,0 +1,47 @@
+# Build outputs
+dist/
+**/bin/
+**/obj/
+**/.vs/
+
+# Logs / caches
+**/*.log
+**/.cache/
+**/Cache/
+**/Cache_Data/
+
+# Windows / Visual Studio
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# .NET
+*.pdb
+*.cache
+*.nupkg
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.python-version
+
+# ROS2 common
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# Node / frontend
+node_modules/
+
+# Vendor binaries (not committed)
+aurora_app/**
+!aurora_app/
+!aurora_app/README.md
+!aurora_app/TODO_上位机整合调研.md
+
+思岚Aurora/
+photoreal/
+
