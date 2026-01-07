@@ -10,13 +10,22 @@ public sealed class MainForm : Form
     private readonly SettingsStore settingsStore = new();
     private readonly AppSettings settings;
     private readonly AuroraRemoteHost auroraRemoteHost = new();
+    private readonly MappingFocusMessageFilter mappingFocusMessageFilter;
 
     private readonly TabControl tabs = new() { Dock = DockStyle.Fill };
+    private TabPage? robotTab;
+    private TabPage? workspaceTab;
+    private TabPage? mappingTab;
+    private TabPage? deviceTab;
+    private TabPage? diagTab;
 
-    private readonly WebView2 robotStudioWebView = new() { Dock = DockStyle.Fill };
-    private readonly WebView2 deviceMgmtWebView = new() { Dock = DockStyle.Fill };
+    private readonly InputFriendlyWebView2 robotStudioWebView = new() { Dock = DockStyle.Fill };
+    private readonly InputFriendlyWebView2 deviceMgmtWebView = new() { Dock = DockStyle.Fill };
+    private readonly InputFriendlyWebView2 workspaceRobotStudioWebView = new() { Dock = DockStyle.Fill };
 
     private readonly Panel auroraHostPanel = new() { Dock = DockStyle.Fill, BackColor = Color.Black };
+    private readonly Panel workspaceAuroraHostPanel = new() { Dock = DockStyle.Fill, BackColor = Color.Black, TabStop = true };
+    private readonly SplitContainer workspaceSplit = new() { Dock = DockStyle.Fill, Orientation = Orientation.Vertical, SplitterWidth = 6 };
     private readonly TextBox logsTextBox = new()
     {
         Dock = DockStyle.Fill,
@@ -36,6 +45,8 @@ public sealed class MainForm : Form
     public MainForm()
     {
         settings = settingsStore.Load();
+        mappingFocusMessageFilter = new MappingFocusMessageFilter(this);
+        Application.AddMessageFilter(mappingFocusMessageFilter);
 
         Text = "Robot Studio";
         Width = 1400;
@@ -56,7 +67,7 @@ public sealed class MainForm : Form
         Controls.Add(tabs);
         statusStrip.Dock = DockStyle.Bottom;
 
-        tabs.SelectedIndexChanged += (_, _) => auroraRemoteHost.ResizeToHost();
+        tabs.SelectedIndexChanged += (_, _) => OnTabChanged();
         Shown += async (_, _) => await StartAndEmbedAuroraOnStartupAsync();
 
         probeTimer.Tick += async (_, _) => await ProbeOnceAsync();
@@ -73,33 +84,53 @@ public sealed class MainForm : Form
 
     private void BuildUi()
     {
-        var robotTab = new TabPage("Robot Studio");
+        workspaceSplit.Panel1.Controls.Add(workspaceRobotStudioWebView);
+        workspaceSplit.Panel2.Controls.Add(workspaceAuroraHostPanel);
+        workspaceAuroraHostPanel.Resize += (_, _) => auroraRemoteHost.ResizeToHost();
+        workspaceSplit.SplitterMoved += (_, _) => auroraRemoteHost.ResizeToHost();
+
+        robotTab = new TabPage("Robot Studio");
         robotTab.Controls.Add(robotStudioWebView);
 
-        var auroraTab = new TabPage("测绘建图");
-        auroraTab.Controls.Add(BuildAuroraTab());
+        workspaceTab = new TabPage("工作台（并排）");
+        workspaceTab.Controls.Add(workspaceSplit);
 
-        var deviceTab = new TabPage("设备管理（官方）");
+        mappingTab = new TabPage("测绘建图");
+        mappingTab.Controls.Add(BuildAuroraTab());
+
+        deviceTab = new TabPage("设备管理（官方）");
         deviceTab.Controls.Add(deviceMgmtWebView);
 
-        var diagTab = new TabPage("运行日志");
+        diagTab = new TabPage("运行日志");
         diagTab.Controls.Add(logsTextBox);
 
         tabs.TabPages.Add(robotTab);
-        tabs.TabPages.Add(auroraTab);
+        tabs.TabPages.Add(workspaceTab);
+        tabs.TabPages.Add(mappingTab);
         tabs.TabPages.Add(deviceTab);
         tabs.TabPages.Add(diagTab);
+
+        workspaceRobotStudioWebView.GotFocus += (_, _) => Activate();
+        robotStudioWebView.GotFocus += (_, _) => Activate();
+        deviceMgmtWebView.GotFocus += (_, _) => Activate();
+
+        workspaceAuroraHostPanel.MouseDown += (_, _) => auroraRemoteHost.Activate();
+        workspaceAuroraHostPanel.GotFocus += (_, _) => auroraRemoteHost.Activate();
     }
 
     private Control BuildAuroraTab()
     {
+        auroraHostPanel.TabStop = true;
         auroraHostPanel.Resize += (_, _) => auroraRemoteHost.ResizeToHost();
+        auroraHostPanel.MouseDown += (_, _) => auroraRemoteHost.Activate();
+        auroraHostPanel.GotFocus += (_, _) => auroraRemoteHost.Activate();
         return auroraHostPanel;
     }
 
     private async Task InitializeWebAsync()
     {
         await InitializeWebViewAsync(robotStudioWebView, settings.RobotStudioUrl);
+        await InitializeWebViewAsync(workspaceRobotStudioWebView, settings.RobotStudioUrl);
         await InitializeWebViewAsync(deviceMgmtWebView, settings.AuroraDeviceManagementUrl);
     }
 
@@ -214,6 +245,7 @@ public sealed class MainForm : Form
             auroraRemoteHost.EmbedInto(auroraHostPanel);
             AppendLog("测绘建图已自动启动并嵌入。");
             DebounceResizeToHost();
+            OnTabChanged();
         }
         catch (Win32Exception ex)
         {
@@ -236,6 +268,61 @@ public sealed class MainForm : Form
             {
                 // Ignore
             }
+        }
+    }
+
+    private void OnTabChanged()
+    {
+        try
+        {
+            if (tabs.SelectedTab == mappingTab)
+            {
+                EnsureMappingEmbedded(auroraHostPanel);
+                auroraRemoteHost.ResizeToHost();
+                auroraRemoteHost.Activate();
+                return;
+            }
+
+            if (tabs.SelectedTab == workspaceTab)
+            {
+                EnsureMappingEmbedded(workspaceAuroraHostPanel);
+                auroraRemoteHost.ResizeToHost();
+                workspaceRobotStudioWebView.Focus();
+                return;
+            }
+
+            if (tabs.SelectedTab == robotTab)
+            {
+                robotStudioWebView.Focus();
+                return;
+            }
+
+            if (tabs.SelectedTab == deviceTab)
+            {
+                deviceMgmtWebView.Focus();
+            }
+        }
+        catch
+        {
+            // Ignore
+        }
+    }
+
+    private void EnsureMappingEmbedded(Panel targetHost)
+    {
+        if (!auroraRemoteHost.IsRunning || auroraRemoteHost.MainWindowHandle == IntPtr.Zero)
+        {
+            return;
+        }
+
+        try
+        {
+            targetHost.CreateControl();
+            auroraRemoteHost.EmbedInto(targetHost);
+        }
+        catch (Exception ex)
+        {
+            AppendLog($"切换测绘建图显示失败: {ex.Message}");
         }
     }
 
@@ -289,11 +376,68 @@ public sealed class MainForm : Form
 
     private void OnFormClosing(object? sender, FormClosingEventArgs e)
     {
+        Application.RemoveMessageFilter(mappingFocusMessageFilter);
         auroraStartCts?.Cancel();
         probeTimer.Stop();
         resizeDebounceTimer.Stop();
 
         auroraRemoteHost.Stop();
+    }
+
+    private void TryActivateMappingForClick()
+    {
+        if (!auroraRemoteHost.IsRunning)
+        {
+            return;
+        }
+
+        if (tabs.SelectedTab == mappingTab)
+        {
+            auroraRemoteHost.Activate();
+            return;
+        }
+
+        if (tabs.SelectedTab == workspaceTab)
+        {
+            var p = Control.MousePosition;
+            var rect = workspaceAuroraHostPanel.RectangleToScreen(workspaceAuroraHostPanel.ClientRectangle);
+            if (rect.Contains(p))
+            {
+                auroraRemoteHost.Activate();
+            }
+        }
+    }
+
+    private sealed class MappingFocusMessageFilter : IMessageFilter
+    {
+        private const int WM_LBUTTONDOWN = 0x0201;
+        private const int WM_LBUTTONDBLCLK = 0x0203;
+        private const int WM_RBUTTONDOWN = 0x0204;
+        private const int WM_MBUTTONDOWN = 0x0207;
+
+        private readonly MainForm form;
+
+        public MappingFocusMessageFilter(MainForm form)
+        {
+            this.form = form;
+        }
+
+        public bool PreFilterMessage(ref Message m)
+        {
+            if (m.Msg is WM_LBUTTONDOWN or WM_LBUTTONDBLCLK or WM_RBUTTONDOWN or WM_MBUTTONDOWN)
+            {
+                try
+                {
+                    form.TryActivateMappingForClick();
+                }
+                catch
+                {
+                    // Ignore
+                }
+            }
+
+            return false;
+        }
     }
 
     private void TryOfferInstallVcRedist()

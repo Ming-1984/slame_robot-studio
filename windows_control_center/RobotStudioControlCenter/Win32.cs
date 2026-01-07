@@ -86,6 +86,12 @@ internal static class Win32
     [DllImport("user32.dll")]
     internal static extern IntPtr SetFocus(IntPtr hWnd);
 
+    [DllImport("kernel32.dll")]
+    internal static extern uint GetCurrentThreadId();
+
+    [DllImport("user32.dll", SetLastError = true)]
+    internal static extern bool AttachThreadInput(uint idAttach, uint idAttachTo, bool fAttach);
+
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     internal struct STARTUPINFO
     {

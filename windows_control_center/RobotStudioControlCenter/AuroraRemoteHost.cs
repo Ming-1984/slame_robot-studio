@@ -161,8 +161,27 @@ public sealed class AuroraRemoteHost : IDisposable
             return;
         }
 
-        _ = Win32.SetForegroundWindow(mainWindowHandle);
-        _ = Win32.SetFocus(mainWindowHandle);
+        var currentThread = Win32.GetCurrentThreadId();
+        var targetThread = Win32.GetWindowThreadProcessId(mainWindowHandle, out _);
+        var attached = false;
+
+        if (currentThread != targetThread)
+        {
+            attached = Win32.AttachThreadInput(currentThread, targetThread, true);
+        }
+
+        try
+        {
+            _ = Win32.SetForegroundWindow(mainWindowHandle);
+            _ = Win32.SetFocus(mainWindowHandle);
+        }
+        finally
+        {
+            if (attached)
+            {
+                _ = Win32.AttachThreadInput(currentThread, targetThread, false);
+            }
+        }
     }
 
     public void Stop()
