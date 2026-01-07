@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@drawable/file_item_background">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginBottom="4dp">
+
+        <TextView
+            android:id="@+id/tv_file_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="文件名"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#333333" />
+
+        <Button
+            android:id="@+id/btn_download"
+            android:layout_width="wrap_content"
+            android:layout_height="36dp"
+            android:text="下载"
+            android:textSize="12sp"
+            android:backgroundTint="#4CAF50"
+            android:layout_marginStart="8dp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tv_file_size"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="文件大小"
+        android:textSize="12sp"
+        android:textColor="#666666"
+        android:layout_marginBottom="2dp" />
+
+    <TextView
+        android:id="@+id/tv_file_date"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="修改日期"
+        android:textSize="12sp"
+        android:textColor="#999999" />
+
+</LinearLayout> 

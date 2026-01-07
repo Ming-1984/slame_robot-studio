@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>🤖 Robot Studio</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar-brand {
+            font-weight: bold;
+            color: #007bff !important;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .status-online {
+            background-color: #28a745;
+            animation: pulse 2s infinite;
+        }
+
+        .status-offline {
+            background-color: #dc3545;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .control-panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .data-card {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .btn-control {
+            margin: 5px;
+            min-width: 120px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-control:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .map-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            height: 520px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .map-canvas {
+            width: 100%;
+            flex: 1;
+            min-height: 400px;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            background: #f8f9fa;
+            display: block;
+        }
+
+        .joystick-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 200px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+
+        .joystick {
+            width: 150px;
+            height: 150px;
+            border: 3px solid #007bff;
+            border-radius: 50%;
+            position: relative;
+            background: white;
+            cursor: pointer;
+        }
+
+        .joystick-knob {
+            width: 40px;
+            height: 40px;
+            background: #007bff;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: all 0.1s ease;
+        }
+
+        .log-container {
+            background: #212529;
+            color: #ffffff;
+            border-radius: 5px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <i class="bi bi-robot"></i> Robot Studio
+            </a>
+            <div class="navbar-nav ms-auto">
+                <div class="nav-item">
+                    <span class="nav-link">
+                        <span id="connectionStatus" class="status-indicator status-offline"></span>
+                        <span id="connectionText">离线</span>
+                    </span>
+                </div>
+                <div class="nav-item">
+                    <span class="nav-link">
+                        <i class="bi bi-clock"></i>
+                        <span id="currentTime"></span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid mt-3">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="control-panel">
+                    <h5><i class="bi bi-info-circle"></i> 系统状态</h5>
+                    <div class="data-card">
+                        <div class="row">
+                            <div class="col-6">
+                                <small class="text-muted">ROS2状态</small>
+                                <div id="ros2Status" class="fw-bold">未知</div>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted">地图状态</small>
+                                <div id="mapStatus" class="fw-bold">未知</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="control-panel">
+                    <h5><i class="bi bi-compass"></i> 导航 / 自主探索</h5>
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-success btn-control w-100" id="startNavBtn">
+                            <i class="bi bi-play-fill"></i> 启动导航/探索
+                        </button>
+                        <button class="btn btn-outline-success btn-control w-100" id="startExplorationBtn">
+                            <i class="bi bi-play-circle"></i> 仅启动探索
+                        </button>
+                        <button class="btn btn-outline-warning btn-control w-100" id="stopExplorationBtn">
+                            <i class="bi bi-stop-circle"></i> 停止探索
+                        </button>
+                        <button class="btn btn-danger btn-control w-100" id="stopNavBtn">
+                            <i class="bi bi-stop-fill"></i> 停止导航
+                        </button>
+                    </div>
+                    <div class="text-muted small mt-2">
+                        启动导航会拉起 SLAM/Nav2/控制/探索等组件；“仅启动探索”需要导航已启动。
+                    </div>
+
+                    <hr class="my-3">
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-outline-primary btn-control w-100" id="saveMapBtn">
+                            <i class="bi bi-save"></i> 保存2D地图
+                        </button>
+                        <button class="btn btn-outline-secondary btn-control w-100" id="clearMapBtn">
+                            <i class="bi bi-eraser"></i> 清除地图
+                        </button>
+                        <button class="btn btn-outline-danger btn-control w-100" id="emergencyStopBtn">
+                            <i class="bi bi-exclamation-octagon"></i> 紧急停止
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="map-container">
+                    <h5><i class="bi bi-map"></i> 实时地图</h5>
+                    <canvas id="mapCanvas" class="map-canvas"></canvas>
+                    <div class="position-absolute top-0 end-0 m-3">
+                        <button class="btn btn-sm btn-outline-secondary" id="resetMapViewBtn">
+                            <i class="bi bi-arrow-clockwise"></i> 重置视图
+                        </button>
+                    </div>
+                </div>
+
+                <div class="control-panel">
+                    <h5><i class="bi bi-controller"></i> 机器人控制</h5>
+
+                    <div class="joystick-container">
+                        <div class="joystick" id="joystick">
+                            <div class="joystick-knob" id="joystickKnob"></div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button class="btn btn-danger btn-control" id="stopBtn">
+                            <i class="bi bi-stop-fill"></i> 停止
+                        </button>
+                        <button class="btn btn-warning btn-control" id="slowModeBtn">
+                            <i class="bi bi-speedometer"></i> 慢速
+                        </button>
+                    </div>
+
+                    <div class="mt-3">
+                        <small class="text-muted">线速度: <span id="linearVel">0.00</span> m/s</small><br>
+                        <small class="text-muted">角速度: <span id="angularVel">0.00</span> rad/s</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3">
+                <div class="data-card">
+                    <h6><i class="bi bi-geo-alt"></i> 机器人位姿</h6>
+                    <div class="row">
+                        <div class="col-4">
+                            <small class="text-muted">X</small>
+                            <div id="robotX" class="fw-bold">0.00</div>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted">Y</small>
+                            <div id="robotY" class="fw-bold">0.00</div>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted">θ</small>
+                            <div id="robotTheta" class="fw-bold">0.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-card">
+                    <h6><i class="bi bi-map"></i> 地图信息</h6>
+                    <div class="row">
+                        <div class="col-6">
+                            <small class="text-muted">尺寸</small>
+                            <div id="mapSize" class="fw-bold">0x0</div>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">分辨率</small>
+                            <div id="mapResolution" class="fw-bold">0.00</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-card">
+                    <h6><i class="bi bi-terminal"></i> 系统日志</h6>
+                    <div id="logContainer" class="log-container">
+                        <div>系统启动中...</div>
+                    </div>
+                    <button class="btn btn-sm btn-outline-secondary mt-2" id="clearLogBtn">
+                        <i class="bi bi-trash"></i> 清除日志
+                    </button>
+                </div>
+
+                <div class="data-card">
+                    <h6><i class="bi bi-wifi"></i> 网络信息</h6>
+                    <div>
+                        <small class="text-muted">API服务器</small>
+                        <div id="apiServer" class="fw-bold">loading...</div>
+                    </div>
+                    <div class="mt-2">
+                        <small class="text-muted">WebSocket</small>
+                        <div id="wsServer" class="fw-bold">loading...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/robot-control.js?v=20260107a"></script>
+    <script src="js/map-display.js?v=20260107a"></script>
+    <script src="js/websocket-client.js?v=20260107a"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const hostname = window.location.hostname;
+            const apiServer = document.getElementById('apiServer');
+            const wsServer = document.getElementById('wsServer');
+            if (apiServer) apiServer.textContent = `http://${hostname}:8000`;
+            if (wsServer) wsServer.textContent = `ws://${hostname}:8001`;
+
+            const updateTime = () => {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('zh-CN', {
+                    hour12: false,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                const timeElement = document.getElementById('currentTime');
+                if (timeElement) {
+                    timeElement.textContent = timeString;
+                }
+            };
+
+            updateTime();
+            setInterval(updateTime, 1000);
+        });
+    </script>
+
+    <div class="fixed-bottom bg-light border-top p-2" style="z-index: 1000;">
+        <div class="container-fluid">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">Robot Studio v2.0</small>
+                <div>
+                    <button class="btn btn-outline-danger btn-sm me-2" id="shutdownBtn">
+                        <i class="bi bi-power"></i> 关机
+                    </button>
+                    <a href="clear_cache.html" class="btn btn-outline-secondary btn-sm me-2">
+                        <i class="bi bi-trash"></i> 清理缓存
+                    </a>
+                    <button class="btn btn-outline-primary btn-sm" onclick="location.reload(true)">
+                        <i class="bi bi-arrow-clockwise"></i> 刷新
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

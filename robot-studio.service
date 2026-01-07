@@ -1,0 +1,41 @@
+[Unit]
+Description=Robot Studio System Service
+Documentation=file:/home/jetson/ros2_ws/README.md
+After=network.target multi-user.target graphical.target
+Wants=network.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+User=root
+Group=root
+WorkingDirectory=/home/jetson/ros2_ws
+ExecStart=/home/jetson/ros2_ws/start_robot_studio.sh
+ExecStop=/home/jetson/ros2_ws/stop_robot_studio.sh
+TimeoutStartSec=600
+TimeoutStopSec=60
+
+# 重启控制 - 最多重启3次
+Restart=on-failure
+RestartSec=30
+StartLimitInterval=300
+StartLimitBurst=3
+
+# 环境变量
+Environment=ROS_DOMAIN_ID=99
+Environment=LD_LIBRARY_PATH=/home/jetson/ros2_ws/src/aurora_remote_public/lib/linux_aarch64
+Environment=HOME=/home/jetson
+Environment=USER=jetson
+
+# 日志配置
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=robot-studio
+
+# 安全配置
+PrivateTmp=false
+ProtectSystem=false
+ProtectHome=false
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,24 @@
+enhanced_robust_explore_node:
+  ros__parameters:
+    # 🚀 增强型探索参数配置
+    
+    # ⏱️ 超时设置
+    exploration_timeout: 600.0          # 总探索超时 (10分钟)
+    navigation_timeout: 30.0            # 单次导航超时 (30秒)
+    frontier_detection_interval: 3.0    # 前沿检测间隔
+    
+    # 🎯 前沿检测参数
+    min_frontier_size: 8                # 最小前沿大小 (增加以提高质量)
+    min_frontier_distance: 1.5          # 最小前沿距离 (避免过近目标)
+    robot_radius: 0.35                  # 机器人半径
+    goal_tolerance: 0.3                 # 目标容差 (降低以提高成功率)
+    
+    # 🔄 恢复机制
+    max_recovery_attempts: 5            # 最大恢复尝试次数
+    
+    # 🗺️ 地图优化
+    enable_map_optimization: true       # 启用地图优化
+    
+    # 📊 性能监控
+    enable_performance_logging: true    # 启用性能日志
+    statistics_interval: 10.0           # 统计发布间隔

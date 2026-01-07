@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">RobotStudio</string>
+    
+    <!-- 主界面 -->
+    <string name="main_title">机器人控制台</string>
+    <string name="server_ip_hint">服务器IP地址</string>
+    <string name="connect">连接</string>
+    <string name="disconnect">断开连接</string>
+    <string name="connection_status">连接状态</string>
+    <string name="connected">已连接</string>
+    <string name="disconnected">未连接</string>
+    
+    <!-- 功能模块 -->
+    <string name="robot_control">机器人控制</string>
+    <string name="map_display">地图显示</string>
+    <string name="point_cloud">点云处理</string>
+    <string name="file_manager">文件管理</string>
+    <string name="settings">设置</string>
+    
+    <!-- 文件管理 -->
+    <string name="maps">地图文件</string>
+    <string name="clouds">点云文件</string>
+    <string name="refresh">刷新</string>
+    <string name="download">下载</string>
+    <string name="file_count">个文件</string>
+    <string name="loading_files">正在加载文件列表...</string>
+    <string name="no_files_found">没有找到文件</string>
+    <string name="download_started">开始下载</string>
+    <string name="download_completed">下载完成</string>
+    <string name="download_failed">下载失败</string>
+    
+    <!-- 机器人控制 -->
+    <string name="forward">前进</string>
+    <string name="backward">后退</string>
+    <string name="left">左转</string>
+    <string name="right">右转</string>
+    <string name="stop">停止</string>
+    <string name="emergency_stop">紧急停止</string>
+    <string name="speed">速度</string>
+    <string name="position">位置</string>
+    <string name="orientation">方向</string>
+    
+    <!-- 错误信息 -->
+    <string name="error_network">网络连接失败</string>
+    <string name="error_server">服务器错误</string>
+    <string name="error_parse">数据解析失败</string>
+    <string name="error_permission">权限不足</string>
+    <string name="error_storage">存储空间不足</string>
+    
+    <!-- 通用 -->
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="retry">重试</string>
+    <string name="close">关闭</string>
+    <string name="save">保存</string>
+    <string name="delete">删除</string>
+    <string name="edit">编辑</string>
+    <string name="view">查看</string>
+</resources>

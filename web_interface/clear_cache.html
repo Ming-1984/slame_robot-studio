@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>清理缓存 - Robot Studio</title>
+    <!-- 本地Bootstrap CSS - 支持离线访问 -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h4><i class="bi bi-exclamation-triangle"></i> 缓存清理指南</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-info">
+                            <h5><i class="bi bi-info-circle"></i> 为什么需要清理缓存？</h5>
+                            <p>如果您仍然看到已删除的激光雷达显示或其他旧内容，这是因为浏览器缓存了旧版本的页面。</p>
+                        </div>
+
+                        <h5>清理方法：</h5>
+                        
+                        <div class="accordion" id="clearCacheAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingChrome">
+                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseChrome">
+                                        <i class="bi bi-browser-chrome"></i> &nbsp; Chrome / Edge 浏览器
+                                    </button>
+                                </h2>
+                                <div id="collapseChrome" class="accordion-collapse collapse show" data-bs-parent="#clearCacheAccordion">
+                                    <div class="accordion-body">
+                                        <ol>
+                                            <li>按 <kbd>Ctrl + Shift + R</kbd> (Windows) 或 <kbd>Cmd + Shift + R</kbd> (Mac) 强制刷新</li>
+                                            <li>或者按 <kbd>F12</kbd> 打开开发者工具</li>
+                                            <li>右键点击刷新按钮，选择"清空缓存并硬性重新加载"</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingFirefox">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFirefox">
+                                        <i class="bi bi-browser-firefox"></i> &nbsp; Firefox 浏览器
+                                    </button>
+                                </h2>
+                                <div id="collapseFirefox" class="accordion-collapse collapse" data-bs-parent="#clearCacheAccordion">
+                                    <div class="accordion-body">
+                                        <ol>
+                                            <li>按 <kbd>Ctrl + Shift + R</kbd> (Windows) 或 <kbd>Cmd + Shift + R</kbd> (Mac) 强制刷新</li>
+                                            <li>或者按 <kbd>Ctrl + Shift + Delete</kbd> 打开清理数据对话框</li>
+                                            <li>选择"缓存"并清理</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingSafari">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSafari">
+                                        <i class="bi bi-browser-safari"></i> &nbsp; Safari 浏览器
+                                    </button>
+                                </h2>
+                                <div id="collapseSafari" class="accordion-collapse collapse" data-bs-parent="#clearCacheAccordion">
+                                    <div class="accordion-body">
+                                        <ol>
+                                            <li>按 <kbd>Cmd + Option + R</kbd> 强制刷新</li>
+                                            <li>或者在菜单栏选择"开发" > "清空缓存"</li>
+                                            <li>如果没有"开发"菜单，在偏好设置 > 高级中启用</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <h5>自动清理缓存：</h5>
+                            <button class="btn btn-primary" onclick="forceReload()">
+                                <i class="bi bi-arrow-clockwise"></i> 强制刷新页面
+                            </button>
+                            <button class="btn btn-success" onclick="goToMainPage()">
+                                <i class="bi bi-house"></i> 返回主页面
+                            </button>
+                        </div>
+
+                        <div class="alert alert-success mt-4">
+                            <h6><i class="bi bi-check-circle"></i> 验证清理效果：</h6>
+                            <p>清理缓存后，您应该看到：</p>
+                            <ul>
+                                <li>✅ 激光雷达显示区域已完全移除</li>
+                                <li>✅ 实时地图显示正常</li>
+                                <li>✅ 虚拟摇杆控制可用</li>
+                                <li>✅ 系统状态与日志正常更新</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS - 本地文件 -->
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script>
+        function forceReload() {
+            // 添加时间戳强制刷新
+            const timestamp = new Date().getTime();
+            window.location.href = `index.html?t=${timestamp}`;
+        }
+        
+        function goToMainPage() {
+            // 直接跳转到主页面
+            window.location.href = 'index.html';
+        }
+        
+        // 页面加载完成后显示当前时间
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('缓存清理页面加载完成，时间:', new Date().toLocaleString());
+        });
+    </script>
+</body>
+</html>

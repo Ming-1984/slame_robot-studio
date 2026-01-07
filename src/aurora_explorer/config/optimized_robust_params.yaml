@@ -1,0 +1,97 @@
+robust_explore_node:
+  ros__parameters:
+    # 🛡️ 基本探索参数 (优化后)
+    exploration_timeout: 300.0          # 探索超时时间 (5分钟)
+    frontier_detection_interval: 2.0    # 前沿检测间隔 (优化到2秒)
+    min_frontier_size: 3                # 最小前沿点数量 (降低以确保前沿点可见)
+    robot_radius: 0.15                  # 机器人膨胀半径（15cm，兼顾通过性和安全性）
+    max_recovery_attempts: 5            # 最大恢复尝试次数 - 增加到5次
+    
+    # 🗺️ 地图优化参数
+    enable_map_optimization: true       # 启用实时地图优化
+    map_optimization_sigma_s: 2.0       # 空间域标准差
+    map_optimization_sigma_r: 30.0      # 像素域标准差
+    
+    # 🎯 TAD算法权重配置 (集成自方案二)
+    tad_weights:
+      trapezoid: 0.25                   # 梯形参数权重
+      adjacent: 0.15                    # 邻接参数权重
+      distance: 0.15                    # 距离参数权重
+      info_gain: 0.30                   # 信息增益权重
+      reachability: 0.15                # 可达性权重
+    
+    # 📊 性能监控参数
+    performance_monitor_interval: 30.0  # 性能监控间隔 (30秒)
+    enable_performance_logging: true    # 启用性能日志
+    
+    # 🛡️ 稳定性参数
+    state_timeout_multiplier: 1.5       # 状态超时倍数
+    error_recovery_delay: 2.0           # 错误恢复延迟
+    max_consecutive_failures: 3         # 最大连续失败次数
+    
+    # 🎯 增强的前沿评估参数
+    min_frontier_distance: 0.5          # 最小前沿距离
+    max_frontier_distance: 20.0         # 最大前沿距离
+    frontier_quality_threshold: 0.3     # 前沿质量阈值
+
+    # 🔍 前沿点检测优化参数
+    multiscale_frontier_detection: true  # 多尺度前沿点检测
+    scale_levels: [0.5, 1.0, 1.5]       # 多尺度检测级别
+    adaptive_threshold_enabled: true     # 启用自适应阈值
+    dynamic_eps_range: [3.0, 8.0]       # 动态DBSCAN eps范围
+    adaptive_dbscan_enabled: true        # 启用自适应DBSCAN
+    
+    # 🔄 导航参数 (优化后)
+    navigation_timeout: 45.0            # 导航超时时间（平衡性能和可靠性）
+    goal_tolerance: 1.2                 # 目标容差（放宽以减少导航时间）
+    improved_goal_tolerance: 0.5        # 改进的目标容差（平衡精度和速度）
+    enable_dynamic_replanning: true     # 启用动态重规划
+    max_navigation_distance: 15.0       # 最大导航距离（超过此距离选择更近的前沿点）
+
+    # 🎯 增强的智能完成判断参数
+    early_completion_enabled: true      # 启用提前完成
+    completion_check_radius: 2.5        # 完成检查半径（米）
+    completion_threshold: 0.7           # 完成阈值（70%已探索）
+    min_approach_distance: 1.5          # 最小接近距离（米）
+
+    # 🌟 多维度完成判断参数
+    global_completion_threshold: 0.85   # 全局完成阈值
+    frontier_density_threshold: 0.1     # 前沿点密度阈值
+    exploration_efficiency_threshold: 0.3  # 探索效率阈值
+    smart_early_completion: true        # 智能提前完成
+
+    # 🔄 动态前沿点更新参数
+    dynamic_frontier_update: true       # 启用动态前沿点更新
+    map_change_threshold: 0.08          # 地图变化阈值（8%，减少频繁更新）
+    frontier_update_interval: 5.0       # 前沿点更新间隔（5秒，减少频率）
+    force_update_timeout: 45.0          # 强制更新超时（45秒，减少频繁更新）
+    
+    # 📈 优化参数
+    adaptive_detection_interval: true   # 自适应检测间隔
+    min_detection_interval: 1.0         # 最小检测间隔
+    max_detection_interval: 5.0         # 最大检测间隔
+
+    # 🚀 增强的并行计算参数
+    enable_parallel_frontier_detection: true  # 启用并行前沿点检测
+    parallel_computation_timeout: 30.0        # 并行计算超时时间（秒）- 增加到30秒
+    batch_processing_enabled: true            # 启用批处理
+    max_batch_size: 15                        # 最大批处理大小 - 减少到15以提高性能
+    parallel_info_gain_calculation: true      # 并行信息增益计算
+
+    # 🏠 房间感知探索参数
+    enable_room_aware_exploration: true       # 启用房间感知探索
+    room_completion_threshold: 0.95           # 房间完成度阈值
+    min_room_area: 0.5                        # 最小房间面积（平方米）
+    door_width_range: [0.3, 1.5]             # 门洞宽度范围（米）
+
+    # 🔄 自适应参数管理
+    enable_adaptive_parameters: true          # 启用自适应参数
+    param_adaptation_interval: 60.0           # 参数适应间隔（秒）
+    adaptive_exploration_interval: true       # 自适应探索间隔
+    adaptive_frontier_threshold: true         # 自适应前沿点阈值
+    adaptive_navigation_timeout: true         # 自适应导航超时
+    
+    # 🔧 调试参数
+    enable_debug_markers: true          # 启用调试标记
+    log_level: "INFO"                   # 日志级别
+    publish_performance_stats: true     # 发布性能统计

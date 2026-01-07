@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Robot Studio</title>
+    <meta http-equiv="refresh" content="0; url=welcome.html">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+        
+        .loading {
+            font-size: 3em;
+            animation: spin 2s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .message {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="loading">🤖</div>
+        <div class="message">正在进入 Robot Studio...</div>
+        <div style="margin-top: 10px; font-size: 0.9em; opacity: 0.8;">
+            如果没有自动跳转，请<a href="welcome.html" style="color: #fff;">点击这里</a>
+        </div>
+    </div>
+    
+    <script>
+        // 如果3秒后还没跳转，手动跳转
+        setTimeout(() => {
+            window.location.href = 'welcome.html';
+        }, 3000);
+    </script>
+</body>
+</html>

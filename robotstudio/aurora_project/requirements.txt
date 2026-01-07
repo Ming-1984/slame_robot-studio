@@ -1,0 +1,11 @@
+# Aurora GUI Requirements
+# Python packages required for the Aurora Point Cloud Processing GUI
+
+# GUI framework (built-in with Python, no installation needed)
+# tkinter - included with Python standard library
+
+# Build tool for creating executable
+pyinstaller>=5.0.0
+
+# Optional: For better file handling
+pathlib2>=2.3.0; python_version<"3.4"

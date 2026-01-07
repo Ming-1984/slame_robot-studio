@@ -1,0 +1,45 @@
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+      <PipelineSequence name="NavigateWithReplanning">
+        <RateController hz="1.0">
+          <RecoveryNode number_of_retries="1" name="ComputePathToPose">
+            <ComputePathToPose goal="{goal}" path="{path}" planner_id="HybridAStar"/>
+            <ReactiveFallback name="ComputePathToPoseRecovery">
+              <GoalUpdated/>
+              <ClearEntireCostmap service_name="global_costmap/clear_entirely_global_costmap" name="ClearGlobalCostmap-Initial"/>
+            </ReactiveFallback>
+          </RecoveryNode>
+        </RateController>
+        <RecoveryNode number_of_retries="1" name="FollowPath">
+          <FollowPath path="{path}" controller_id="FollowPath"/>
+          <ReactiveFallback name="FollowPathRecovery">
+            <GoalUpdated/>
+            <!-- 这是我们的自定义恢复序列 -->
+            <Sequence name="CustomRecoveryActions">
+              <!-- 第一招: 清理局部地图 -->
+              <ClearEntireCostmap service_name="local_costmap/clear_entirely_local_costmap" name="ClearLocalCostmap"/>
+              <Wait wait_duration="1.0"/>
+              <!-- 第二招: 后退一步 -->
+              <BackUp backup_dist="0.3" backup_speed="0.1"/>
+              <Wait wait_duration="1.0"/>
+              <!-- 第三招: 换个方向 -->
+              <Spin spin_dist="1.57"/>
+            </Sequence>
+          </ReactiveFallback>
+        </RecoveryNode>
+      </PipelineSequence>
+      <ReactiveFallback name="RecoveryFallback">
+        <GoalUpdated/>
+        <RoundRobin name="RecoveryActions">
+          <Sequence name="ClearingAndSpinning">
+            <ClearEntireCostmap service_name="local_costmap/clear_entirely_local_costmap" name="ClearLocalCostmap-RR"/>
+            <Spin spin_dist="1.57"/>
+          </Sequence>
+          <BackUp backup_dist="0.3" backup_speed="0.1" name="BackUp-RR"/>
+        </RoundRobin>
+      </ReactiveFallback>
+    </RecoveryNode>
+  </BehaviorTree>
+</root>
+ 

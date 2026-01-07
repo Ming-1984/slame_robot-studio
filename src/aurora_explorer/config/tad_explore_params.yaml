@@ -1,0 +1,64 @@
+explore_node:
+  ros__parameters:
+    # 🗺️ 基本探索参数
+    frontier_detection_interval: 3.0    # 前沿检测间隔
+    min_frontier_size: 5                # 最小前沿点数量
+    max_exploration_distance: 10.0      # 最大探索距离
+    exploration_timeout: 90.0           # 探索超时时间
+    
+    # 🔍 前沿检测参数
+    frontier_cluster_tolerance: 0.5     # 前沿聚类容差
+    frontier_min_points: 3              # 前沿最小点数
+    
+    # 🎯 TAD算法参数 (梯形-邻接-距离)
+    enable_tad_algorithm: true          # 启用TAD算法
+    enable_predictive_planning: true    # 启用预测性规划
+    frontier_cache_timeout: 2.0         # 前沿缓存超时时间
+    predictive_planning_distance: 1.5   # 预测性规划触发距离
+    
+    # 🏗️ TAD算法权重配置
+    trapezoid_weight: 0.25              # 梯形参数权重
+    adjacent_weight: 0.15               # 邻接参数权重
+    distance_weight: 0.15               # 距离参数权重
+    info_gain_weight: 0.30              # 信息增益权重
+    reachability_weight: 0.15           # 可达性权重
+    
+    # 📊 性能优化参数
+    max_frontiers_to_evaluate: 20       # 最大评估前沿数量
+    path_planning_timeout: 5.0          # 路径规划超时
+    
+    # 🛡️ 安全参数
+    robot_radius: 0.2                   # 机器人半径
+    safety_margin: 0.3                  # 安全边距
+
+    # 🔄 优化的恢复机制参数
+    stuck_timeout: 15.0                 # 卡住检测超时 (降低敏感度)
+    stuck_detection_interval: 8.0       # 卡住检测间隔 (增加到8秒)
+    position_stuck_threshold: 0.02      # 位置卡住阈值 (2cm)
+    emergency_recovery_enabled: true    # 启用紧急恢复
+    goal_switch_cooldown: 2.0           # 目标切换冷却时间 (减少频繁切换)
+
+    # 🎯 目标区域检测参数
+    target_mapped_radius: 2.0           # 目标周围探测半径
+    target_mapped_threshold: 0.60       # 探测区域被测绘最小比例 (降低到60%)
+    target_check_interval: 0.5          # 目标区域检测间隔
+    
+    # 📈 调试参数
+    enable_debug_markers: true          # 启用调试标记
+    log_evaluation_details: true        # 记录评估详情
+
+    # 🚀 最新优化算法参数 (基于Nature 2025研究)
+    enable_map_optimization: true       # 启用实时地图优化
+    enable_mrtsp_optimization: true     # 启用MRTSP优化
+    enable_gpu_acceleration: true       # 启用GPU加速
+    map_optimization_sigma_s: 2.0       # 地图优化空间域参数
+    map_optimization_sigma_r: 30.0      # 地图优化像素域参数
+
+    # 🎯 MRTSP优化参数
+    mrtsp_weight_distance: 0.4          # MRTSP距离权重
+    mrtsp_weight_size: 0.6              # MRTSP信息增益权重
+    mrtsp_sensor_range: 3.0             # 传感器有效范围
+
+    # ⚡ GPU加速参数
+    gpu_num_workers: 8                  # GPU工作线程数
+    gpu_enable_parallel: true           # 启用并行处理

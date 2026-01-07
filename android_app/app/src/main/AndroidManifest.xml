@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.robotstudio.controller">
+
+    <!-- 网络权限 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    
+    <!-- 存储权限 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    
+    <!-- 下载权限 -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.RobotStudio"
+        android:usesCleartextTraffic="true">
+
+        <!-- 主活动 -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- 机器人控制活动 -->
+        <activity
+            android:name=".RobotControlActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- 地图显示活动 -->
+        <activity
+            android:name=".MapDisplayActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- 点云显示活动 -->
+        <activity
+            android:name=".PointCloudActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- 文件管理器活动 -->
+        <activity
+            android:name=".FileManagerActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+        <!-- 设置活动 -->
+        <activity
+            android:name=".SettingsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+
+    </application>
+
+</manifest>

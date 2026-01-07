@@ -1,0 +1,440 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.5.1-0-g916b5db  Build Version: 1.5.7152.31018
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="acamana2">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="-0.000410773784337883 -4.50102945719522E-06 0.000188079948723219"
+        rpy="0 0 0" />
+      <mass
+        value="0.224252192432072" />
+      <inertia
+        ixx="0.000384367775648917"
+        ixy="3.76312515381569E-08"
+        ixz="-3.24905280221402E-09"
+        iyy="0.00152650491504501"
+        iyz="7.02452171300295E-11"
+        izz="0.00189778395864725" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://acamana2/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://acamana2/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="left_steering_hinge">
+    <inertial>
+      <origin
+        xyz="-0.00214055518577713 0.0114938412169271 -0.001014304427052"
+        rpy="0 0 0" />
+      <mass
+        value="0.019320077665136" />
+      <inertia
+        ixx="3.65091233921692E-06"
+        ixy="-3.83593766521677E-07"
+        ixz="-4.31566026293567E-07"
+        iyy="4.40274174328948E-06"
+        iyz="-1.57348260942124E-07"
+        izz="4.3532740317556E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://acamana2/meshes/left_steering_hinge.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://acamana2/meshes/left_steering_hinge.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="left_steering_hinge_joint"
+    type="revolute">
+    <origin
+      xyz="0.11123 0.063711 -0.00033469"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="left_steering_hinge" />
+    <axis
+      xyz="0 0 1" />
+    <limit
+      lower="-0.785"
+      upper="0.785"
+      effort="1999.9"
+      velocity="348.9" />
+  </joint>
+  <link
+    name="left_front_wheel">
+    <inertial>
+      <origin
+        xyz="2.69864818588927E-07 0.000974501012602685 7.43502353119704E-08"
+        rpy="0 0 0" />
+      <mass
+        value="0.12418835172291" />
+      <inertia
+        ixx="0.000108426219462846"
+        ixy="6.16640881328085E-10"
+        ixz="6.14953119338301E-09"
+        iyy="0.000198988759882876"
+        iyz="-1.79342907541688E-11"
+        izz="0.000108425295658776" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://acamana2/meshes/left_front_wheel.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://acamana2/meshes/left_front_wheel.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="left_front_wheel_joint"
+    type="continuous">
+    <origin
+      xyz="0 0.047063 0"
+      rpy="0 0 0" />
+    <parent
+      link="left_steering_hinge" />
+    <child
+      link="left_front_wheel" />
+    <axis
+      xyz="0 -1 0" />
+    <limit
+      effort="259.9"
+      velocity="529.9" />
+  </joint>
+  <link
+    name="right_steering_hinge">
+    <inertial>
+      <origin
+        xyz="-0.00214065668285351 -0.0114939743395863 -0.00101615028127725"
+        rpy="0 0 0" />
+      <mass
+        value="0.0193185139789688" />
+      <inertia
+        ixx="3.65072241343909E-06"
+        ixy="3.83677614862923E-07"
+        ixz="-4.31474916495668E-07"
+        iyy="4.40170253054902E-06"
+        iyz="1.57666090581157E-07"
+        izz="4.35305289408279E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://acamana2/meshes/right_steering_hinge.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://acamana2/meshes/right_steering_hinge.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_steering_hinge_joint"
+    type="revolute">
+    <origin
+      xyz="0.111230525585985 -0.0637106995347114 -0.000334687736762873"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="right_steering_hinge" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-0.785"
+      upper="0.785"
+      effort="1999.9"
+      velocity="348.9" />
+  </joint>
+  <link
+    name="right_front_wheel">
+    <inertial>
+      <origin
+        xyz="-1.55041703847614E-06 -0.00097439582600499 2.4829475613131E-06"
+        rpy="0 0 0" />
+      <mass
+        value="0.124186468014131" />
+      <inertia
+        ixx="0.000108438665831259"
+        ixy="8.28493097038196E-10"
+        ixz="2.08769589008209E-08"
+        iyy="0.000199003281993627"
+        iyz="1.53854386505607E-09"
+        izz="0.000108428194337113" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://acamana2/meshes/right_front_wheel.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://acamana2/meshes/right_front_wheel.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_front_wheel_joint"
+    type="continuous">
+    <origin
+      xyz="0 -0.0470633451186309 0"
+      rpy="0 0 0" />
+    <parent
+      link="right_steering_hinge" />
+    <child
+      link="right_front_wheel" />
+    <axis
+      xyz="0 -1 0" />
+    <limit
+      effort="259.9"
+      velocity="529.9" />
+  </joint>
+  <link
+    name="left_rear_wheel">
+    <inertial>
+      <origin
+        xyz="1.48678996687857E-06 0.000974279188722449 -2.39603529520079E-06"
+        rpy="0 0 0" />
+      <mass
+        value="0.124185768828942" />
+      <inertia
+        ixx="0.000108447186829514"
+        ixy="9.33560141595974E-10"
+        ixz="-7.51084935144066E-09"
+        iyy="0.000198999670251066"
+        iyz="2.67909992025909E-10"
+        izz="0.000108415507607779" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://acamana2/meshes/left_rear_wheel.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://acamana2/meshes/left_rear_wheel.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="left_rear_wheel_joint"
+    type="continuous">
+    <origin
+      xyz="-0.1021 0.11077 0"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="left_rear_wheel" />
+    <axis
+      xyz="0 1 0" />
+    <limit
+      effort="259.9"
+      velocity="529.9" />
+  </joint>
+  <link
+    name="right_rear_wheel">
+    <inertial>
+      <origin
+        xyz="1.49354710721195E-06 -0.000974859995539312 -2.34500866790445E-06"
+        rpy="0 0 0" />
+      <mass
+        value="0.124186295393309" />
+      <inertia
+        ixx="0.00010844765961674"
+        ixy="8.73157175243495E-10"
+        ixz="-8.57721799211079E-09"
+        iyy="0.000199000738711778"
+        iyz="3.07367436002684E-10"
+        izz="0.000108416160867579" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://acamana2/meshes/right_rear_wheel.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://acamana2/meshes/right_rear_wheel.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="right_rear_wheel_joint"
+    type="continuous">
+    <origin
+      xyz="-0.1021 -0.11077 0"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="right_rear_wheel" />
+    <axis
+      xyz="0 -1 0" />
+    <limit
+      effort="259.9"
+      velocity="529.9" />
+  </joint>
+  <link
+    name="leida">
+    <inertial>
+      <origin
+        xyz="-0.0007604957110324 0.000211748468434377 -0.112606108555635"
+        rpy="0 0 0" />
+      <mass
+        value="0.273339967701891" />
+      <inertia
+        ixx="0.000327852111551434"
+        ixy="-4.61737474783927E-07"
+        ixz="1.07356038525216E-06"
+        iyy="0.000300809453230777"
+        iyz="-6.34768259573186E-07"
+        izz="0.000210961052999863" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://acamana2/meshes/leida.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.501960784313725 0.631372549019608 0.705882352941176 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://acamana2/meshes/leida.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="leida_joint"
+    type="fixed">
+    <origin
+      xyz="0.031541 -6.5039E-05 0.23809"
+      rpy="0 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="leida" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+</robot>

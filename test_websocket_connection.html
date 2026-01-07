@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket连接测试</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .status {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+        .connected {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .disconnected {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .log {
+            background-color: #f5f5f5;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .log-entry {
+            margin: 5px 0;
+            padding: 3px;
+        }
+        .log-info { color: #0066cc; }
+        .log-success { color: #28a745; }
+        .log-error { color: #dc3545; }
+        .log-warning { color: #ffc107; }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket连接测试</h1>
+    
+    <div id="status" class="status disconnected">
+        状态: 未连接
+    </div>
+    
+    <div>
+        <button onclick="testConnect()">连接</button>
+        <button onclick="testDisconnect()">断开</button>
+        <button onclick="clearLog()">清除日志</button>
+    </div>
+    
+    <h2>连接日志</h2>
+    <div id="log" class="log"></div>
+    
+    <h2>接收到的数据</h2>
+    <div id="data" class="log"></div>
+    
+    <script>
+        let ws = null;
+        let messageCount = 0;
+        
+        function addLog(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        function updateStatus(connected) {
+            const statusDiv = document.getElementById('status');
+            if (connected) {
+                statusDiv.className = 'status connected';
+                statusDiv.textContent = '状态: 已连接';
+            } else {
+                statusDiv.className = 'status disconnected';
+                statusDiv.textContent = '状态: 未连接';
+            }
+        }
+        
+        function addData(message) {
+            const dataDiv = document.getElementById('data');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            const timestamp = new Date().toLocaleTimeString();
+            
+            // 格式化消息
+            let formattedMessage = '';
+            if (message.type === 'topic_data') {
+                formattedMessage = `[${timestamp}] 话题: ${message.topic}`;
+                if (message.topic === 'map' && message.data && message.data.info) {
+                    formattedMessage += ` - 地图尺寸: ${message.data.info.width}x${message.data.info.height}`;
+                } else if (message.topic === 'odom' && message.data && message.data.pose) {
+                    const pos = message.data.pose.pose.position;
+                    formattedMessage += ` - 位置: (${pos.x.toFixed(2)}, ${pos.y.toFixed(2)})`;
+                } else if (message.topic === 'scan' && message.data) {
+                    formattedMessage += ` - 激光点数: ${message.data.ranges ? message.data.ranges.length : 0}`;
+                }
+            } else {
+                formattedMessage = `[${timestamp}] ${JSON.stringify(message).substring(0, 100)}...`;
+            }
+            
+            entry.textContent = formattedMessage;
+            dataDiv.appendChild(entry);
+            dataDiv.scrollTop = dataDiv.scrollHeight;
+            
+            // 限制显示的数据条目数量
+            while (dataDiv.children.length > 50) {
+                dataDiv.removeChild(dataDiv.firstChild);
+            }
+        }
+        
+        function testConnect() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                addLog('已经连接', 'warning');
+                return;
+            }
+            
+            const hostname = window.location.hostname || 'localhost';
+            const wsUrl = `ws://${hostname}:8001`;
+            
+            addLog(`尝试连接到: ${wsUrl}`, 'info');
+            
+            try {
+                ws = new WebSocket(wsUrl);
+                
+                ws.onopen = (event) => {
+                    addLog('WebSocket连接成功！', 'success');
+                    updateStatus(true);
+                    messageCount = 0;
+                };
+                
+                ws.onmessage = (event) => {
+                    messageCount++;
+                    try {
+                        const message = JSON.parse(event.data);
+                        addLog(`收到消息 #${messageCount}: ${message.type}`, 'info');
+                        addData(message);
+                    } catch (error) {
+                        addLog(`解析消息失败: ${error.message}`, 'error');
+                    }
+                };
+                
+                ws.onclose = (event) => {
+                    addLog(`WebSocket连接关闭: code=${event.code}, reason=${event.reason}`, 'warning');
+                    updateStatus(false);
+                };
+                
+                ws.onerror = (event) => {
+                    addLog('WebSocket连接错误', 'error');
+                    updateStatus(false);
+                };
+                
+            } catch (error) {
+                addLog(`连接失败: ${error.message}`, 'error');
+                updateStatus(false);
+            }
+        }
+        
+        function testDisconnect() {
+            if (ws) {
+                addLog('断开连接...', 'info');
+                ws.close();
+                ws = null;
+                updateStatus(false);
+            } else {
+                addLog('没有活动的连接', 'warning');
+            }
+        }
+        
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+            document.getElementById('data').innerHTML = '';
+            addLog('日志已清除', 'info');
+        }
+        
+        // 页面加载时自动连接
+        window.onload = () => {
+            addLog('页面加载完成', 'info');
+            addLog('点击"连接"按钮开始测试', 'info');
+        };
+    </script>
+</body>
+</html>
+

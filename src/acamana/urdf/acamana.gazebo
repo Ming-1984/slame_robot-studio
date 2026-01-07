@@ -1,0 +1,160 @@
+<?xml version="1.0"?>
+<robot>
+
+  <!-- Materials -->
+  <gazebo reference="base_link">
+    <material>Gazebo/Blue</material>
+    <mu1>0.2</mu1>
+    <mu2>0.2</mu2>
+    <selfCollide>true</selfCollide>
+  </gazebo>
+
+  <gazebo reference="left_steering_hinge">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <gazebo reference="right_steering_hinge">
+    <material>Gazebo/Blue</material>
+  </gazebo>
+
+  <gazebo reference="left_front_wheel">
+    <material>Gazebo/Black</material>
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <kp>500000.0</kp>
+    <kd>10.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.1</maxVel>
+    <fdir1>1 0 0</fdir1>
+  </gazebo>
+
+  <gazebo reference="right_front_wheel">
+    <material>Gazebo/Black</material>
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <kp>500000.0</kp>
+    <kd>10.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.1</maxVel>
+    <fdir1>1 0 0</fdir1>
+  </gazebo>
+
+  <gazebo reference="left_rear_wheel">
+    <material>Gazebo/Black</material>
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <kp>500000.0</kp>
+    <kd>10.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.1</maxVel>
+    <fdir1>1 0 0</fdir1>
+  </gazebo>
+
+  <gazebo reference="right_rear_wheel">
+    <material>Gazebo/Black</material>
+    <mu1>1.0</mu1>
+    <mu2>1.0</mu2>
+    <kp>500000.0</kp>
+    <kd>10.0</kd>
+    <minDepth>0.001</minDepth>
+    <maxVel>0.1</maxVel>
+    <fdir1>1 0 0</fdir1>
+  </gazebo>
+
+  <!-- Ackermann Drive Plugin -->
+  <gazebo>
+    <plugin name="ackermann_drive" filename="libgazebo_ros_ackermann_drive.so">
+      <ros>
+        <namespace>/acamana</namespace>
+        <remapping>cmd_vel:=cmd_vel</remapping>
+        <remapping>odom:=odom</remapping>
+        <remapping>distance:=distance</remapping>
+      </ros>
+
+      <!-- wheels -->
+      <front_left_joint>left_front_wheel_joint</front_left_joint>
+      <front_right_joint>right_front_wheel_joint</front_right_joint>
+      <rear_left_joint>left_rear_wheel_joint</rear_left_joint>
+      <rear_right_joint>right_rear_wheel_joint</rear_right_joint>
+      <left_steering_joint>left_steering_hinge_joint</left_steering_joint>
+      <right_steering_joint>right_steering_hinge_joint</right_steering_joint>
+
+      <!-- steering joints -->
+      <left_steering_joint>left_steering_hinge_joint</left_steering_joint>
+      <right_steering_joint>right_steering_hinge_joint</right_steering_joint>
+
+      <!-- Max steer angle -->
+      <max_steer>0.785</max_steer>
+      <max_steering_angle>0.785</max_steering_angle>
+      <max_speed>20</max_speed>
+
+      <!-- PID tuning -->
+      <left_steering_pid_gain>1500 0 1</left_steering_pid_gain>
+      <left_steering_i_range>0 0</left_steering_i_range>
+      <right_steering_pid_gain>1500 0 1</right_steering_pid_gain>
+      <right_steering_i_range>0 0</right_steering_i_range>
+      <linear_velocity_pid_gain>1000 0 1</linear_velocity_pid_gain>
+      <linear_velocity_i_range>0 0</linear_velocity_i_range>
+
+      <!-- output -->
+      <publish_odom>true</publish_odom>
+      <publish_odom_tf>true</publish_odom_tf>
+      <publish_wheel_tf>true</publish_wheel_tf>
+      <publish_distance>true</publish_distance>
+
+      <odometry_frame>odom</odometry_frame>
+      <robot_base_frame>base_link</robot_base_frame>
+
+      <!-- Wheel separation and diameter -->
+      <wheel_separation>0.127422</wheel_separation>
+      <wheelbase>0.21333</wheelbase>
+      <wheel_diameter>0.1</wheel_diameter>
+
+      <!-- Topic to receive geometry_msgs/Twist message commands -->
+      <command_topic>cmd_vel</command_topic>
+
+      <!-- Topic to publish nav_msgs/Odometry messages -->
+      <odometry_topic>odom</odometry_topic>
+
+      <!-- Odometry frame -->
+      <odometry_frame>odom</odometry_frame>
+
+      <!-- Robot frame to calculate odometry from -->
+      <robot_base_frame>base_link</robot_base_frame>
+
+      <!-- Odometry source, 0 for ENCODER, 1 for WORLD, defaults to WORLD -->
+      <odometry_source>1</odometry_source>
+
+      <!-- Set to true to publish transforms for the wheel links -->
+      <publish_wheel_tf>false</publish_wheel_tf>
+
+      <!-- Set to true to publish transforms for the odometry -->
+      <publish_odom_tf>true</publish_odom_tf>
+
+      <!-- Set to true to publish sensor_msgs/JointState on /joint_states for the wheel joints -->
+      <publish_wheel_joint_state>true</publish_wheel_joint_state>
+
+      <!-- Set to true to swap right and left wheels, defaults to true -->
+      <legacy_mode>false</legacy_mode>
+
+      <update_rate>100.0</update_rate>
+    </plugin>
+  </gazebo>
+
+  <!-- Joint State Publisher Plugin -->
+  <gazebo>
+    <plugin name="joint_state_publisher" filename="libgazebo_ros_joint_state_publisher.so">
+      <ros>
+        <remapping>~/out:=joint_states</remapping>
+      </ros>
+      <update_rate>30</update_rate>
+      <joint_name>left_steering_hinge_joint</joint_name>
+      <joint_name>right_steering_hinge_joint</joint_name>
+      <joint_name>left_front_wheel_joint</joint_name>
+      <joint_name>right_front_wheel_joint</joint_name>
+      <joint_name>left_rear_wheel_joint</joint_name>
+      <joint_name>right_rear_wheel_joint</joint_name>
+    </plugin>
+  </gazebo>
+
+</robot> 

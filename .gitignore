@@ -1,0 +1,273 @@
+# ROS2 工作空间构建和安装目录
+build/
+install/
+log/
+logs/
+
+# Python 字节码和缓存
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# 分发/打包
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+#  Usually these files are written by a python script from a template
+#  before PyInstaller builds the exe, so as to inject date/other infos into it.
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+#   According to pypa/pipenv#598, it is recommended to include Pipfile.lock in version control.
+#   However, in case of collaboration, if having platform-specific dependencies or dependencies
+#   having no cross-platform support, pipenv may install dependencies that don't work, or not
+#   install all needed dependencies.
+#Pipfile.lock
+
+# PEP 582; used by e.g. github.com/David-OConnor/pyflow
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+.cursor
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# C++ 编译文件
+*.o
+*.lo
+*.la
+*.al
+.libs
+*.so.*
+*.a
+*.pyc
+*.d
+
+# 编辑器和IDE文件
+.vscode/
+.cursor/
+.idea/
+*.swp
+*.swo
+*~
+.#*
+\#*\#
+.DS_Store
+Thumbs.db
+
+# Vim 临时文件
+*.tmp
+*.bak
+*.backup
+*.orig
+*.rej
+
+# Emacs 临时文件
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# CMake
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
+
+# Qt Creator
+CMakeLists.txt.user*
+
+.augment
+
+# ROS
+.catkin_workspace
+devel/
+
+# ROS2 特定文件
+.colcon_install_layout
+.colcon_test_result
+
+# 调试和分析工具
+.gdb_history
+*.core
+core
+vgcore.*
+callgrind.out.*
+cachegrind.out.*
+
+# 允许仓库中的 core/ 目录（避免与 core dump 文件重名导致被忽略）
+!core/
+!core/**
+
+# 日志文件
+*.log
+logs/
+*.out
+*.err
+
+# 临时文件
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# 操作系统生成的文件
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 网络文件
+.nfs*
+
+# RViz 自动保存配置文件
+*.rviz~
+
+# Gazebo 日志
+.gazebo/
+
+# PID 文件
+*.pid
+
+# rosbag 数据文件（如果不需要版本控制）
+*.bag
+*.db3
+
+# PCL 点云文件（如果不需要版本控制）
+*.pcd
+
+# 地图文件（根据需要调整，有些地图文件可能需要版本控制）
+# *.yaml
+# *.pgm
+
+# 配置文件备份
+*.yaml.bak
+*.xml.bak
+*.launch.bak
+
+# 用户自定义脚本的输出
+*.output
+
+# 性能分析文件
+perf.data*
+
+# 项目特定文件
+projects/
+data/point_clouds/
+data/exports/
+nohup.out
+
+# 临时脚本和测试文件
+check_aurora_status.sh
+check_map_data.py
+problem_solution_report.sh
+system_diagnosis_and_fix.sh
+system_health_check.sh
+
+# Web界面测试文件
+web_interface/api_test.html
+web_interface/cache_clear_guide.html
+web_interface/new_file_manager.html
+web_interface/project_test.html
+web_interface/test_*.html
+
+# VSCode Counter 输出
+.VSCodeCounter/
+
+# 网络和系统报告
+NETWORK_SERVICES_REPAIR_REPORT.md
+
+# 机器人工作室特定文件
+robot-studio
+robotstudio/data/

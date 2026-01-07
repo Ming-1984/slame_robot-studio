@@ -1,0 +1,103 @@
+# Acamana 机器人平台阿克曼底盘优化参数配置
+# 第二阶段优化：解决参数一致性和运动学约束问题
+# Author: Acamana-Bot Development Team  
+# Date: 2025-01-15
+
+# ===== 🚗 阿克曼底盘精确物理参数 =====
+ackermann_vehicle:
+  ros__parameters:
+    # 🎯 核心几何参数 (基于实际测量，统一所有模块)
+    wheelbase: 0.21333                # 前后轮轴距 (米) - 实测值
+    track_width: 0.18                 # 左右轮距 (米)
+    wheel_radius: 0.05                # 车轮半径 (米)
+    
+    # 🔧 精确转向约束 (修正为理论计算值)
+    max_steer_angle: 0.6108           # 最大转向角 (弧度) ≈ 35°
+    min_turning_radius: 0.3047        # 修正最小转弯半径 = wheelbase/tan(max_steer_angle)
+    
+    # ✅ 运动学验证 (自动计算验证参数一致性)
+    calculated_min_radius: 0.3047     # 根据轴距和最大转向角计算
+    validation_tolerance: 0.005       # 参数验证容差 (米)
+    
+    # 🚗 车辆外形尺寸 (用于碰撞检测和footprint)
+    vehicle_length: 0.30              # 车身长度 (米)
+    vehicle_width: 0.20               # 车身宽度 (米)
+    safety_margin: 0.05               # 安全边距 (米)
+    
+    # ⚡ 运动性能约束
+    max_linear_velocity: 0.6          # 最大线速度 (m/s) - 适中保守
+    max_angular_velocity: 1.0         # 最大角速度 (rad/s)
+    max_acceleration: 0.8             # 最大加速度 (m/s²)
+    max_deceleration: 1.2             # 最大减速度 (m/s²)
+    max_jerk: 2.0                     # 最大加加速度 (m/s³)
+    
+    # 🎛️ 控制系统参数
+    control_frequency: 10.0           # 控制频率 (Hz)
+    steering_filter_alpha: 0.2        # 转向平滑因子 (0-1)
+    max_steering_rate: 1.5            # 最大转向速率 (rad/s)
+    velocity_filter_alpha: 0.3       # 速度平滑因子
+    
+    # 🎯 Pure Pursuit 优化参数
+    base_lookahead_distance: 0.6      # 基础前瞻距离 (米)
+    lookahead_velocity_gain: 0.4      # 速度增益
+    min_lookahead_distance: 0.3       # 最小前瞻距离
+    max_lookahead_distance: 1.2       # 最大前瞻距离
+    curvature_velocity_scaling: 0.8   # 曲率速度缩放
+
+# ===== 🚗 保持原有物理参数结构以兼容现有代码 =====
+physical_properties:
+  ros__parameters:
+    # 核心几何参数 (统一到新配置)
+    wheelbase: 0.21333                # 车辆轴距 (米) - 统一值
+    track_width: 0.18                 # 左右轮距 (米)
+    wheel_radius: 0.05                # 车轮半径 (米)
+    
+    # 转向约束参数 (修正)
+    max_steer_angle: 0.6108           # 最大转向角 (弧度) ≈ 35°
+    min_turning_radius: 0.3047        # 最小转弯半径 (米) - 修正值
+    
+    # 车辆几何外形
+    vehicle_length: 0.30              # 车辆长度 (米)
+    vehicle_width: 0.20               # 车辆宽度 (米)
+    
+    # 运动学约束 (优化)
+    max_linear_velocity: 0.6          # 最大线速度 (m/s) - 提升
+    max_angular_velocity: 1.0         # 最大角速度 (rad/s) - 提升
+    max_acceleration: 0.8             # 最大加速度 (m/s²)
+    max_deceleration: 1.2             # 最大减速度 (m/s²)
+    
+    # 控制器调节参数 (优化)
+    lookahead_distance_base: 0.6      # 基础前瞻距离 (米) - 降低
+    lookahead_velocity_scaling: 0.4   # 速度相关缩放
+    steering_filter_alpha: 0.2        # 转向平滑因子 - 降低
+    max_steering_rate: 1.5            # 最大转向速率 (rad/s) - 降低
+
+# ===== 📡 话题名称配置 =====
+topic_names:
+  ros__parameters:
+    # 原始硬件驱动发布的话题
+    raw_scan_topic: "/slamware_ros_sdk_server_node/scan"
+    raw_odom_topic: "/slamware_ros_sdk_server_node/odom"
+    raw_map_topic: "/slamware_ros_sdk_server_node/map"
+
+    # 中继后，供上层应用(Nav2)使用的标准话题
+    standard_scan_topic: "/scan"
+    standard_odom_topic: "/odom"
+    standard_map_topic: "/map"
+    
+    # 阿克曼控制话题
+    cmd_vel_topic: "/cmd_vel"
+    wheel_speed_topic: "/wheel_speed"
+    steer_angle_topic: "/steer_angle"
+
+# ===== 🎯 性能监控参数 =====
+performance_monitoring:
+  ros__parameters:
+    # 导航性能指标
+    path_deviation_threshold: 0.15    # 路径偏差告警阈值 (米)
+    stuck_detection_time: 5.0         # 卡住检测时间 (秒)
+    recovery_success_threshold: 0.95  # 脱困成功率阈值
+    
+    # 建图质量指标
+    mapping_efficiency_threshold: 0.7 # 建图效率阈值
+    exploration_coverage_threshold: 0.9 # 探索覆盖率阈值

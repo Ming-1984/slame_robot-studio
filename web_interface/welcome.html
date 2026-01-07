@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 Robot Studio</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .logo {
+            font-size: 4em;
+            margin-bottom: 20px;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin: 0 0 10px 0;
+            font-weight: 300;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            margin: 10px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn-primary {
+            background: rgba(76, 175, 80, 0.8);
+            border-color: rgba(76, 175, 80, 1);
+        }
+        
+        .btn-primary:hover {
+            background: rgba(76, 175, 80, 1);
+        }
+        
+        .info {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+        
+        .status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4CAF50;
+            margin-right: 8px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .feature {
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: 0.9em;
+        }
+        
+        .feature-icon {
+            font-size: 1.5em;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">🤖</div>
+        <h1>Robot Studio</h1>
+        <div class="subtitle">机器人远程控制系统</div>
+        
+        <div class="info">
+            <div><span class="status"></span>系统已就绪</div>
+            <div style="margin-top: 10px;">
+                <strong>访问:</strong> http://&lt;机器人IP&gt;:8080<br>
+                <small style="opacity: 0.9;">同一网络/热点下访问均可（示例：http://192.168.4.1:8080）</small>
+            </div>
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <div class="feature-icon">🎮</div>
+                <div>远程控制</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🗺️</div>
+                <div>实时地图</div>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📊</div>
+                <div>状态与日志</div>
+            </div>
+        </div>
+        
+        <a href="index.html" class="btn btn-primary">🚀 开始控制</a>
+        <a href="#" class="btn" onclick="showHelp()">❓ 使用帮助</a>
+        
+        <div id="help" style="display: none; margin-top: 20px; text-align: left; font-size: 0.9em;">
+            <h3>🎯 快速开始</h3>
+            <ol>
+                <li>点击 "开始控制" 进入控制界面</li>
+                <li>确认右上角连接状态显示“在线”</li>
+                <li>等待地图更新后即可控制机器人</li>
+            </ol>
+            
+            <h3>📱 移动设备</h3>
+            <p>支持手机和平板电脑，触摸控制更便捷！</p>
+            
+            <h3>🔧 故障排除</h3>
+            <p>如遇问题，请刷新页面或检查网络连接后重试。</p>
+        </div>
+    </div>
+    
+    <script>
+        function showHelp() {
+            const help = document.getElementById('help');
+            help.style.display = help.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        // 检查系统状态
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/status');
+                if (response.ok) {
+                    document.querySelector('.status').style.background = '#4CAF50';
+                } else {
+                    document.querySelector('.status').style.background = '#FF9800';
+                }
+            } catch (error) {
+                document.querySelector('.status').style.background = '#F44336';
+            }
+        }
+        
+        // 每5秒检查一次状态
+        setInterval(checkStatus, 5000);
+        checkStatus();
+    </script>
+</body>
+</html>
