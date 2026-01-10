@@ -28,6 +28,11 @@ class RobotController {
         this.keyboardSendIntervalMs = 100;
         this.keyboardSendTimer = null;
 
+        // 摇杆 UI（用于键盘控制时同步显示）
+        this.joystickIsDragging = false;
+        this.joystickElement = null;
+        this.joystickKnobElement = null;
+
         this.currentLinearVel = 0;
         this.currentAngularVel = 0;
 
@@ -84,6 +89,36 @@ class RobotController {
         }
     }
 
+    updateJoystickKnobFromAxes(axisX, axisY) {
+        const joystick = this.joystickElement || document.getElementById('joystick');
+        const knob = this.joystickKnobElement || document.getElementById('joystickKnob');
+        if (!joystick || !knob) return;
+        if (this.joystickIsDragging) return;
+
+        const rect = joystick.getBoundingClientRect();
+        const knobRadius = knob.offsetWidth ? knob.offsetWidth / 2 : 20;
+        const maxRadius = rect.width / 2 - knobRadius;
+        if (maxRadius <= 0) return;
+
+        let x = this.clamp(axisX, -1, 1);
+        let y = this.clamp(axisY, -1, 1);
+
+        const r = Math.hypot(x, y);
+        if (r < 0.001) {
+            knob.style.transform = 'translate(-50%, -50%)';
+            return;
+        }
+        if (r > 1) {
+            x /= r;
+            y /= r;
+        }
+
+        const deltaX = x * maxRadius;
+        const deltaY = -y * maxRadius; // y>0 表示前进（屏幕坐标向上）
+
+        knob.style.transform = `translate(${deltaX - knobRadius}px, ${deltaY - knobRadius}px)`;
+    }
+
     updateKeyboardVelocity() {
         if (!this.keyboardControlEnabled) return;
 
@@ -114,6 +149,7 @@ class RobotController {
         this.currentLinearVel = linear;
         this.currentAngularVel = angular;
         this.updateVelocityDisplay();
+        this.updateJoystickKnobFromAxes(axisX, axisY);
         this.sendVelocityCommand(this.currentLinearVel, this.currentAngularVel);
     }
 
@@ -127,6 +163,7 @@ class RobotController {
                     this.keyboardPressedKeys.clear();
                     this.stopKeyboardControlTimer();
                     this.sendVelocityCommand(0, 0);
+                    this.updateJoystickKnobFromAxes(0, 0);
                     this.addLog('键盘控制已关闭', 'info');
                 } else {
                     this.addLog('键盘控制已开启', 'info');
@@ -159,6 +196,7 @@ class RobotController {
                 this.currentLinearVel = 0;
                 this.currentAngularVel = 0;
                 this.updateVelocityDisplay();
+                this.updateJoystickKnobFromAxes(0, 0);
                 this.sendVelocityCommand(0, 0);
                 this.addLog('键盘急停', 'warning');
                 return;
@@ -193,6 +231,7 @@ class RobotController {
                 this.currentLinearVel = 0;
                 this.currentAngularVel = 0;
                 this.updateVelocityDisplay();
+                this.updateJoystickKnobFromAxes(0, 0);
                 this.sendVelocityCommand(0, 0);
             } else {
                 this.updateKeyboardVelocity();
@@ -205,6 +244,7 @@ class RobotController {
             this.currentLinearVel = 0;
             this.currentAngularVel = 0;
             this.updateVelocityDisplay();
+            this.updateJoystickKnobFromAxes(0, 0);
             this.sendVelocityCommand(0, 0);
         });
     }
@@ -321,7 +361,8 @@ class RobotController {
         const knob = document.getElementById('joystickKnob');
         if (!joystick || !knob) return;
 
-        let isDragging = false;
+        this.joystickElement = joystick;
+        this.joystickKnobElement = knob;
         let joystickRect = joystick.getBoundingClientRect();
 
         const updateJoystickRect = () => {
@@ -331,13 +372,13 @@ class RobotController {
         window.addEventListener('resize', updateJoystickRect);
 
         const handleStart = (e) => {
-            isDragging = true;
+            this.joystickIsDragging = true;
             updateJoystickRect();
             e.preventDefault();
         };
 
         const handleMove = (e) => {
-            if (!isDragging) return;
+            if (!this.joystickIsDragging) return;
             e.preventDefault();
 
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -384,8 +425,8 @@ class RobotController {
         };
 
         const handleEnd = (e) => {
-            if (!isDragging) return;
-            isDragging = false;
+            if (!this.joystickIsDragging) return;
+            this.joystickIsDragging = false;
             e.preventDefault();
 
             knob.style.transform = 'translate(-50%, -50%)';
