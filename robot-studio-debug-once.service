@@ -1,0 +1,15 @@
+[Unit]
+Description=Robot Studio One-time Test Mode Helper
+After=network.target multi-user.target
+Wants=network.target
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/home/jetson/ros2_ws
+ExecStart=/home/jetson/ros2_ws/debug_once_boot.sh
+TimeoutStartSec=60
+
+[Install]
+WantedBy=multi-user.target

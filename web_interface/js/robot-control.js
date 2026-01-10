@@ -12,6 +12,22 @@ class RobotController {
         this.isSlowMode = false;
         this.maxLinearSpeed = 0.3;
         this.maxAngularSpeed = 1.0;
+
+        // 摇杆映射参数（对角线可到双满速 + 死区 + 可控的非线性）
+        this.joystickDeadzone = 0.08;
+        this.joystickCurve = 1.0; // 1.0=线性；>1 更细腻
+
+        // 阿克曼“原地转向”兼容：仅转向时给一点前进速度，避免出现倒车转向的手感
+        this.turnInPlaceLinearBias = 0.05; // m/s
+        this.turnInPlaceLinearThreshold = 0.02; // m/s
+        this.turnInPlaceAngularThreshold = 0.2; // rad/s
+
+        // 键盘控制
+        this.keyboardControlEnabled = true;
+        this.keyboardPressedKeys = new Set();
+        this.keyboardSendIntervalMs = 100;
+        this.keyboardSendTimer = null;
+
         this.currentLinearVel = 0;
         this.currentAngularVel = 0;
 
@@ -22,7 +38,175 @@ class RobotController {
 
         this.initializeControls();
         this.initializeJoystick();
+        this.initializeKeyboardControl();
         this.startStatusUpdates();
+    }
+
+    clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    // 圆形摇杆坐标(-1~1, r<=1) -> “激进方形映射”(对角线双满速)，同时保持角度方向不变
+    mapJoystickCircleToSquare(x, y) {
+        const r = Math.hypot(x, y);
+        if (r < this.joystickDeadzone) {
+            return { x: 0, y: 0, r: 0 };
+        }
+
+        const dirX = x / r;
+        const dirY = y / r;
+
+        const mag = (r - this.joystickDeadzone) / (1 - this.joystickDeadzone);
+        const magCurved = Math.pow(this.clamp(mag, 0, 1), this.joystickCurve);
+
+        const maxDirAbs = Math.max(Math.abs(dirX), Math.abs(dirY));
+        const squareFactor = maxDirAbs > 0 ? 1 / maxDirAbs : 0;
+
+        const outX = this.clamp(dirX * squareFactor * magCurved, -1, 1);
+        const outY = this.clamp(dirY * squareFactor * magCurved, -1, 1);
+
+        return { x: outX, y: outY, r: magCurved };
+    }
+
+    isTextInputFocused() {
+        const el = document.activeElement;
+        if (!el) return false;
+        const tag = (el.tagName || '').toLowerCase();
+        if (tag === 'input' || tag === 'textarea' || tag === 'select') return true;
+        if (el.isContentEditable) return true;
+        return false;
+    }
+
+    stopKeyboardControlTimer() {
+        if (this.keyboardSendTimer) {
+            clearInterval(this.keyboardSendTimer);
+            this.keyboardSendTimer = null;
+        }
+    }
+
+    updateKeyboardVelocity() {
+        if (!this.keyboardControlEnabled) return;
+
+        const keys = this.keyboardPressedKeys;
+        const forward = keys.has('KeyW') || keys.has('ArrowUp');
+        const backward = keys.has('KeyS') || keys.has('ArrowDown');
+        const left = keys.has('KeyA') || keys.has('ArrowLeft');
+        const right = keys.has('KeyD') || keys.has('ArrowRight');
+        const shift = keys.has('ShiftLeft') || keys.has('ShiftRight');
+
+        let axisY = 0;
+        if (forward && !backward) axisY = 1;
+        else if (backward && !forward) axisY = -1;
+
+        let axisX = 0;
+        if (right && !left) axisX = 1;
+        else if (left && !right) axisX = -1;
+
+        const speedMultiplier = (this.isSlowMode || shift) ? 0.3 : 1.0;
+        let linear = axisY * this.maxLinearSpeed * speedMultiplier;
+        let angular = -axisX * this.maxAngularSpeed * speedMultiplier; // 右=负角速度（右转）
+
+        if (Math.abs(linear) < this.turnInPlaceLinearThreshold &&
+            Math.abs(angular) > this.turnInPlaceAngularThreshold) {
+            linear = this.turnInPlaceLinearBias * speedMultiplier;
+        }
+
+        this.currentLinearVel = linear;
+        this.currentAngularVel = angular;
+        this.updateVelocityDisplay();
+        this.sendVelocityCommand(this.currentLinearVel, this.currentAngularVel);
+    }
+
+    initializeKeyboardControl() {
+        const toggle = document.getElementById('keyboardControlToggle');
+        if (toggle) {
+            this.keyboardControlEnabled = !!toggle.checked;
+            toggle.addEventListener('change', () => {
+                this.keyboardControlEnabled = !!toggle.checked;
+                if (!this.keyboardControlEnabled) {
+                    this.keyboardPressedKeys.clear();
+                    this.stopKeyboardControlTimer();
+                    this.sendVelocityCommand(0, 0);
+                    this.addLog('键盘控制已关闭', 'info');
+                } else {
+                    this.addLog('键盘控制已开启', 'info');
+                }
+            });
+        }
+
+        const handledCodes = new Set([
+            'KeyW', 'KeyA', 'KeyS', 'KeyD',
+            'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight',
+            'Space', 'ShiftLeft', 'ShiftRight',
+        ]);
+
+        window.addEventListener('keydown', (e) => {
+            if (!this.keyboardControlEnabled) return;
+            if (this.isTextInputFocused()) return;
+
+            const code = e.code || '';
+            if (!handledCodes.has(code)) return;
+
+            // 防止方向键滚动页面、空格触发滚动
+            if (code.startsWith('Arrow') || code === 'Space') {
+                e.preventDefault();
+            }
+
+            // 空格：立即停止并清空按键状态
+            if (code === 'Space') {
+                this.keyboardPressedKeys.clear();
+                this.stopKeyboardControlTimer();
+                this.currentLinearVel = 0;
+                this.currentAngularVel = 0;
+                this.updateVelocityDisplay();
+                this.sendVelocityCommand(0, 0);
+                this.addLog('键盘急停', 'warning');
+                return;
+            }
+
+            this.keyboardPressedKeys.add(code);
+
+            if (!this.keyboardSendTimer) {
+                this.keyboardSendTimer = setInterval(
+                    () => this.updateKeyboardVelocity(),
+                    this.keyboardSendIntervalMs
+                );
+            }
+
+            this.updateKeyboardVelocity();
+        });
+
+        window.addEventListener('keyup', (e) => {
+            const code = e.code || '';
+            if (!this.keyboardPressedKeys.has(code)) return;
+            this.keyboardPressedKeys.delete(code);
+
+            // 如果没有任何运动相关按键，停止定时器并发送停止
+            const hasMoveKeys =
+                this.keyboardPressedKeys.has('KeyW') || this.keyboardPressedKeys.has('ArrowUp') ||
+                this.keyboardPressedKeys.has('KeyS') || this.keyboardPressedKeys.has('ArrowDown') ||
+                this.keyboardPressedKeys.has('KeyA') || this.keyboardPressedKeys.has('ArrowLeft') ||
+                this.keyboardPressedKeys.has('KeyD') || this.keyboardPressedKeys.has('ArrowRight');
+
+            if (!hasMoveKeys) {
+                this.stopKeyboardControlTimer();
+                this.currentLinearVel = 0;
+                this.currentAngularVel = 0;
+                this.updateVelocityDisplay();
+                this.sendVelocityCommand(0, 0);
+            } else {
+                this.updateKeyboardVelocity();
+            }
+        });
+
+        window.addEventListener('blur', () => {
+            this.keyboardPressedKeys.clear();
+            this.stopKeyboardControlTimer();
+            this.currentLinearVel = 0;
+            this.currentAngularVel = 0;
+            this.updateVelocityDisplay();
+            this.sendVelocityCommand(0, 0);
+        });
     }
 
     initializeControls() {
@@ -102,6 +286,34 @@ class RobotController {
                 this.executeSystemCommand('shutdown_system', { confirm: '关机' });
             });
         }
+
+        const testModeBtn = document.getElementById('testModeBtn');
+        if (testModeBtn) {
+            testModeBtn.addEventListener('click', () => {
+                const warning =
+                    '即将进入一次性【测试模式】并重启系统：\n' +
+                    '1) 下次开机不会启动热点/上位机（Web 将不可用）\n' +
+                    '2) 下次开机会启动 SSH（用于调试）\n' +
+                    '3) 仅生效一次：再重启后会恢复正常自启（热点+上位机）\n\n' +
+                    '确认继续？';
+
+                if (!confirm(warning)) {
+                    this.addLog('已取消进入测试模式', 'info');
+                    return;
+                }
+
+                const token = prompt('输入“测试模式”确认执行（将立即重启）；其它输入将取消。');
+                if (token !== '测试模式') {
+                    this.addLog('已取消进入测试模式', 'info');
+                    return;
+                }
+
+                testModeBtn.disabled = true;
+                testModeBtn.classList.add('disabled');
+                this.executeSystemCommand('enter_test_mode_once', { confirm: '测试模式' });
+                this.addLog('测试模式请求已发送，系统即将重启...', 'warning');
+            });
+        }
     }
 
     initializeJoystick() {
@@ -147,27 +359,25 @@ class RobotController {
 
             knob.style.transform = `translate(${deltaX - 20}px, ${deltaY - 20}px)`;
 
-            // 圆盘坐标（-1~1）
-            let normX = deltaX / maxRadius;
-            let normY = -deltaY / maxRadius;
+            // 圆盘坐标（-1~1, r<=1）
+            const rawX = deltaX / maxRadius;
+            const rawY = -deltaY / maxRadius;
 
-            // 映射到“速度方形”，允许前进+转向同时接近最大值
-            const r = Math.sqrt(normX * normX + normY * normY);
-            if (r < 0.001) {
-                normX = 0;
-                normY = 0;
-            } else {
-                const maxAbs = Math.max(Math.abs(normX), Math.abs(normY));
-                if (maxAbs > 0) {
-                    const scale = r / maxAbs;
-                    normX *= scale;
-                    normY *= scale;
-                }
-            }
+            // 对角线双满速映射 + 死区/曲线
+            const mapped = this.mapJoystickCircleToSquare(rawX, rawY);
 
             const speedMultiplier = this.isSlowMode ? 0.3 : 1.0;
-            this.currentLinearVel = normY * this.maxLinearSpeed * speedMultiplier;
-            this.currentAngularVel = -normX * this.maxAngularSpeed * speedMultiplier;
+            let linear = mapped.y * this.maxLinearSpeed * speedMultiplier;
+            let angular = -mapped.x * this.maxAngularSpeed * speedMultiplier;
+
+            // 仅转向时给一点前进速度（阿克曼车无法真正原地转向）
+            if (Math.abs(linear) < this.turnInPlaceLinearThreshold &&
+                Math.abs(angular) > this.turnInPlaceAngularThreshold) {
+                linear = this.turnInPlaceLinearBias * speedMultiplier;
+            }
+
+            this.currentLinearVel = linear;
+            this.currentAngularVel = angular;
 
             this.updateVelocityDisplay();
             this.sendVelocityCommand(this.currentLinearVel, this.currentAngularVel);

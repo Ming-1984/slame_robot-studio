@@ -750,6 +750,85 @@ async def execute_system_command(command: SystemCommand):
                     "error": str(e)
                 }
 
+        elif command.command == "enter_test_mode_once":
+            # 一次性测试模式 - 触发重启：下次开机不启热点/不上位机，仅启动SSH；且只生效一次（下次再开机自动恢复正常自启）
+            import os
+
+            try:
+                script_path = "/home/jetson/ros2_ws/enter_test_mode_once.sh"
+                if not os.path.exists(script_path):
+                    return {
+                        "status": "error",
+                        "message": "测试模式脚本不存在",
+                        "error": f"缺少: {script_path}"
+                    }
+
+                delay_seconds = 3
+                confirm_token = None
+                plan_only = False
+                dry_run = False
+
+                if command.parameters:
+                    try:
+                        delay_seconds = int(command.parameters.get("delay", delay_seconds))
+                    except Exception:
+                        delay_seconds = 3
+                    confirm_token = command.parameters.get("confirm")
+                    plan_only = bool(command.parameters.get("plan_only", False))
+                    dry_run = bool(command.parameters.get("dry_run", False))
+
+                # 高危操作：非 plan-only 时必须显式确认
+                if (not plan_only) and (confirm_token != "测试模式"):
+                    return {
+                        "status": "error",
+                        "message": "进入测试模式需要确认令牌",
+                        "error": "请在 parameters 中传入 confirm=测试模式"
+                    }
+
+                args = ["bash", script_path, "--delay", str(max(0, delay_seconds))]
+                if plan_only:
+                    args.append("--plan-only")
+                if dry_run:
+                    args.append("--dry-run")
+
+                log_paths = ["/var/log/robot-studio-test-mode.log", "/tmp/robot-studio-test-mode.log"]
+                log_fp = None
+                for p in log_paths:
+                    try:
+                        log_fp = open(p, "a")
+                        break
+                    except Exception:
+                        continue
+
+                proc = subprocess.Popen(
+                    args,
+                    stdout=log_fp if log_fp else subprocess.DEVNULL,
+                    stderr=log_fp if log_fp else subprocess.DEVNULL,
+                    start_new_session=True,
+                    close_fds=True,
+                )
+
+                if log_fp:
+                    log_fp.close()
+
+                return {
+                    "status": "success",
+                    "message": (
+                        "测试模式流程已启动"
+                        + ("（plan-only：仅检查，不执行）" if plan_only else "")
+                        + ("（dry-run：不重启）" if (dry_run and (not plan_only)) else "")
+                    ),
+                    "output": f"测试模式脚本已启动 (PID: {proc.pid})，预计 {max(0, delay_seconds)} 秒后重启"
+                }
+
+            except Exception as e:
+                logger.error(f"进入测试模式失败: {e}")
+                return {
+                    "status": "error",
+                    "message": "进入测试模式失败",
+                    "error": str(e)
+                }
+
         elif command.command == "start_point_cloud_processing":
             # 启动点云处理 - 使用异步方式避免超时
             import os
